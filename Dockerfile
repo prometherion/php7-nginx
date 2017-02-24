@@ -37,6 +37,8 @@ EXPOSE 80 9000
 
 WORKDIR /var/www
 
+VOLUME ["/var/www"]
+
 # Start script
 COPY ./scripts/start.sh /start.sh
 RUN chmod 755 /start.sh
