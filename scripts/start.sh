@@ -15,5 +15,9 @@ sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
 	-e "s/;listen.mode\s*=\s*www-data/listen.mode = 0660/g" \
 	/usr/local/etc/php-fpm.d/www.conf
 
+# php.ini
+echo "upload_max_filesize = $MAX_UPLOAD_SIZE
+post_max_size = $MAX_UPLOAD_SIZE" > /usr/local/etc/php/php.ini
+
 # Supervisord
 supervisord -n
