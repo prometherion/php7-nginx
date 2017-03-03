@@ -23,7 +23,7 @@ RUN apt-get install -y git zip unzip zlib1g-dev
 RUN docker-php-ext-install zip
 
 # PHP-FPM environment variables for performance tuning
-ENV LISTEN=/var/run/php-fpm.sock
+ENV LISTEN=127.0.0.1:9000
 ENV MAX_CHILDREN=100
 ENV START_SERVER=30
 ENV MIN_SPARE_SERVERS=30
