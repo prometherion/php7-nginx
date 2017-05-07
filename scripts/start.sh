@@ -1,23 +1,26 @@
 #!/bin/bash
 
+echo "Performances tuned PHP-FPM variables:"
+echo " - listening on {$LISTEN} as www-data:www-data with mode 0660"
+echo " - max children: {$MAX_CHILDREN}"
+echo " - start servers: {$START_SERVER}"
+echo " - min spare servers: {$MIN_SPARE_SERVERS}"
+echo " - max spare servers: {$MAX_SPARE_SERVERS}"
+echo " - max requests: {$MAX_REQUESTS}"
+echo " - max upload size: {$MAX_UPLOAD_SIZE}"
+
+if [[ ${ENABLE_LOG:0} == 1 && $PAPERTRAIL_DOMAIN && $PAPERTRAIL_PORT && $LOG_HOSTNAME && $LOG_FILES ]]; then
+	echo "PaperTrail as logging driver is enabled:"
+	echo " - domain: {$PAPERTRAIL_DOMAIN}:{$PAPERTRAIL_PORT}"
+	echo " - logging as: {$LOG_HOSTNAME}"
+	echo " - log files: {$LOG_FILES}"
+elif [[ ${ENABLE_LOG} == 0 ]]; then
+	echo "PaperTrail as logging driver has NOT been enabled: hope you're in dev environment..."
+fi
+
 # Always chown webroot for better mounting
-chown -Rf www-data:www-data /var/www
-
-# PHP-FPM tuning
-sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
-	-e "s/pm.max_children\s*=\s*5/pm.max_children = $MAX_CHILDREN/g" \
-	-e "s/pm.start_servers\s*=\s*2/pm.start_servers = $START_SERVER/g" \
-	-e "s/pm.min_spare_servers\s*=\s*1/pm.min_spare_servers = $MIN_SPARE_SERVERS/g" \
-	-e "s/pm.max_spare_servers\s*=\s*3/pm.max_spare_servers = $MAX_SPARE_SERVERS/g" \
-	-e "s/;pm.max_requests\s*=\s*500/pm.max_requests = $MAX_REQUESTS/g" \
-	-e "s/;listen.owner\s*=\s*www-data/listen.owner = www-data/g" \
-	-e "s/;listen.group\s*=\s*www-data/listen.group = www-data/g" \
-	-e "s/;listen.mode\s*=\s*www-data/listen.mode = 0660/g" \
-	/usr/local/etc/php-fpm.d/www.conf
-
-# php.ini
-echo "upload_max_filesize = $MAX_UPLOAD_SIZE
-post_max_size = $MAX_UPLOAD_SIZE" > /usr/local/etc/php/php.ini
+chown -Rf --verbose www-data:www-data ${PWD}
 
 # Supervisord
-supervisord -n
+echo "Starting supervisord for NGINX and PHP-FPM..."
+supervisord -n -c /etc/supervisor/supervisord.conf
