@@ -26,25 +26,12 @@ ADD conf/supervisor.conf /etc/supervisor/conf.d/start.conf
 RUN apt-get install -y git zip unzip zlib1g-dev
 RUN docker-php-ext-install zip
 
-# Installing remote syslog for PaperTrail logging
-RUN apt-get install -y wget \
-    && wget https://github.com/papertrail/remote_syslog2/releases/download/v0.19/remote-syslog2_0.19_amd64.deb \
-    && dpkg -i remote-syslog2_0.19_amd64.deb \
-    && rm remote-syslog2_0.19_amd64.deb
-
 # Cleaning up apt cache
 RUN rm -rf /var/lib/apt/lists/*
 
 # Defining base environment file
 ENV ENV_FILE=.env.local
 RUN echo 'APP_ENV=local' > .env.local
-
-# PaperTrail logging
-ENV ENABLE_LOG=0
-ENV LOG_FILES='/var/log/nginx/error.log /var/log/nginx/access.log /var/log/supervisor/phpfpm-stderr.log /var/log/supervisor/phpfpm-stdout.log /var/log/supervisor/nginx-stderr.log /var/log/supervisor/nginx-stdout.log'
-ENV PAPERTRAIL_DOMAIN=logs4.papertrailapp.com
-ENV PAPERTRAIL_PORT=10100
-ENV LOG_HOSTNAME=admin
 
 # PHP-FPM environment variables for performance tuning
 ENV LISTEN=127.0.0.1:9000

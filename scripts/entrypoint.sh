@@ -1,17 +1,6 @@
 #!/bin/bash
 set -e
 
-# Remote logging to PaperTrail
-if [[ ${ENABLE_LOG:0} == 1 && !$PAPERTRAIL_DOMAIN && !$PAPERTRAIL_PORT && !$LOG_HOSTNAME && !$LOG_FILES ]]; then
-	echo "PaperTrail logging is enabled but requested parameters has not been provided!"
-	exit 2
-elif [[ ${ENABLE_LOG:0} == 1 ]]; then
-	remote_syslog \
-		-d ${PAPERTRAIL_DOMAIN} \
-		-p ${PAPERTRAIL_PORT} \
-		--pid-file=/var/run/remote_syslog.pid \
-		--hostname=${LOG_HOSTNAME} ${LOG_FILES}
-fi
 
 # PHP-FPM tuning
 sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
