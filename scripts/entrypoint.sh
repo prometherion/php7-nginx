@@ -1,19 +1,14 @@
 #!/bin/bash
 set -e
 
-# Remote logging to PaperTrail
-if [[ ${ENABLE_LOG:0} == 1 && !$PAPERTRAIL_DOMAIN && !$PAPERTRAIL_PORT && !$LOG_HOSTNAME && !$LOG_FILES ]]; then
-	echo "PaperTrail logging is enabled but requested parameters has not been provided!"
-	exit 2
-elif [[ ${ENABLE_LOG:0} == 1 ]]; then
-	remote_syslog \
-		-d ${PAPERTRAIL_DOMAIN} \
-		-p ${PAPERTRAIL_PORT} \
-		--pid-file=/var/run/remote_syslog.pid \
-		--hostname=${LOG_HOSTNAME} ${LOG_FILES}
-fi
+#
+# NGINX tuning
+#
+sed -i -e "s/client_max_body_size\s100M;/client_max_body_size $MAX_UPLOAD_SIZE;/gi" /etc/nginx/nginx.conf
 
+#
 # PHP-FPM tuning
+#
 sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
 	-e "s/pm.max_children\s*=\s*5/pm.max_children = $MAX_CHILDREN/g" \
 	-e "s/pm.start_servers\s*=\s*2/pm.start_servers = $START_SERVER/g" \
@@ -25,17 +20,20 @@ sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
 	-e "s/;listen.mode\s*=\s*0660/listen.mode = 0660/g" \
 	${PHP_INI_DIR}/../php-fpm.d/www.conf
 
+#
 # Overriding max upload size for php.ini
+#
 echo "upload_max_filesize = $MAX_UPLOAD_SIZE
 post_max_size = $MAX_UPLOAD_SIZE" > ${PHP_INI_DIR}/php.ini
 
-# Environment file
+#
+# dotEnv environment file
+#
 if [[ ${ENV_FILE} && -f ${PWD}/${ENV_FILE} ]]; then
     cat ${PWD}/${ENV_FILE} > ${PWD}/.env
     echo "Setting ${ENV_FILE} as main dotEnv file in ${PWD}"
 elif [ ! -f ${PWD}/.env ]; then
-    echo "No dotEnv file has been chosen..."
-    exit 1
+    echo "WARNING: no dotEnv file has been chosen!"
 else
     echo "Using built dotEnv file located in ${PWD}/.env "
 fi
