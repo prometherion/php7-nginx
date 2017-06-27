@@ -12,6 +12,7 @@ RUN apt-get update
 # Installing NGINX with default configuration file
 RUN apt-get install nginx -y
 ADD conf/nginx.conf /etc/nginx/sites-enabled/default
+RUN rm -rf /etc/nginx/sites-*
 
 # Installing Composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
