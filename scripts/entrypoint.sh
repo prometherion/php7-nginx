@@ -1,8 +1,14 @@
 #!/bin/bash
 set -e
 
+#
+# NGINX tuning
+#
+sed -i -e "s/client_max_body_size\s100M;/client_max_body_size $MAX_UPLOAD_SIZE;/gi" /etc/nginx/nginx.conf
 
+#
 # PHP-FPM tuning
+#
 sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
 	-e "s/pm.max_children\s*=\s*5/pm.max_children = $MAX_CHILDREN/g" \
 	-e "s/pm.start_servers\s*=\s*2/pm.start_servers = $START_SERVER/g" \
@@ -14,11 +20,15 @@ sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
 	-e "s/;listen.mode\s*=\s*0660/listen.mode = 0660/g" \
 	${PHP_INI_DIR}/../php-fpm.d/www.conf
 
+#
 # Overriding max upload size for php.ini
+#
 echo "upload_max_filesize = $MAX_UPLOAD_SIZE
 post_max_size = $MAX_UPLOAD_SIZE" > ${PHP_INI_DIR}/php.ini
 
-# Environment file
+#
+# dotEnv environment file
+#
 if [[ ${ENV_FILE} && -f ${PWD}/${ENV_FILE} ]]; then
     cat ${PWD}/${ENV_FILE} > ${PWD}/.env
     echo "Setting ${ENV_FILE} as main dotEnv file in ${PWD}"
