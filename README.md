@@ -51,6 +51,6 @@ Remember that dotEnv inject all environment variables so you can use docker ones
 
 
 
-Healtchecks
+Health-checks
 ---
 Checking every 5 seconds if PHP-FPM and NGINX are running: feel free to provide a `/ping` endpoint in your application.
