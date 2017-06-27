@@ -31,8 +31,8 @@ RUN docker-php-ext-install zip
 RUN rm -rf /var/lib/apt/lists/*
 
 # Defining base environment file
-ENV ENV_FILE=.env.local
-RUN echo 'APP_ENV=local' > .env.local
+#
+ENV ENV_FILE=.env
 
 # PHP-FPM environment variables for performance tuning
 ENV LISTEN=127.0.0.1:9000

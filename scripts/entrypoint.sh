@@ -23,8 +23,7 @@ if [[ ${ENV_FILE} && -f ${PWD}/${ENV_FILE} ]]; then
     cat ${PWD}/${ENV_FILE} > ${PWD}/.env
     echo "Setting ${ENV_FILE} as main dotEnv file in ${PWD}"
 elif [ ! -f ${PWD}/.env ]; then
-    echo "No dotEnv file has been chosen..."
-    exit 1
+    echo "WARNING: no dotEnv file has been chosen!"
 else
     echo "Using built dotEnv file located in ${PWD}/.env "
 fi
