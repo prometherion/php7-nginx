@@ -78,5 +78,4 @@ RUN cd /usr/sbin && chmod 700 \
 #
 # Healtcheck (available for Docker >= 1.12)
 #
-HEALTHCHECK --interval=5s --timeout=5s CMD supervisorctl status nginx | grep RUNNING || exit 1
-HEALTHCHECK --interval=5s --timeout=5s CMD supervisorctl status php-fpm | grep RUNNING || exit 1
+HEALTHCHECK --interval=5s CMD healthcheck

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+NGINX=$(supervisorctl status nginx | grep RUNNING)
+PHPFPM=$(supervisorctl status php-fpm | grep RUNNING)
+
+if [ -z "$NGINX" ] || [ -z "$PHPFPM" ]; then
+    echo 'KO' && exit 1
+fi
+
+echo 'OK' && exit 0
