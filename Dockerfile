@@ -7,19 +7,6 @@ EXPOSE 80
 WORKDIR /var/www
 
 #
-# Updating repositories
-#
-RUN apt-get update
-
-#
-# Installing NGINX with custom configuration file: optimized for PHP-FPM and already non-daemoned
-#
-RUN apt-get install nginx -y
-RUN rm -rf /etc/nginx/sites-*
-ADD conf/default.conf /etc/nginx/conf.d/default.conf
-ADD conf/nginx.conf /etc/nginx/nginx.conf
-
-#
 # Installing Composer
 #
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
@@ -27,15 +14,24 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 	php -r "unlink('composer-setup.php');"
 
 #
-# Installing Supervisor
+# Updating repositories
 #
-RUN apt-get install supervisor -y
-ADD conf/supervisor.conf /etc/supervisor/conf.d/start.conf
+RUN apt-get update
 
 #
-# Installing Git and Zip/Unzip for Composer speed up
+# Installing NGINX  plus utilities for Composer speed up and remote repositories clonation
 #
-RUN apt-get install -y git zip unzip zlib1g-dev
+RUN apt-get install -y \
+    nginx \
+    supervisor \
+    git \
+    zip \
+    unzip \
+    zlib1g-dev
+
+#
+# Installing PHP Zip extension
+#
 RUN docker-php-ext-install zip
 
 #
@@ -71,9 +67,21 @@ RUN cd /usr/sbin && chmod 700 \
     stop \
     start
 
+ENTRYPOINT ["entrypoint"]
+
+CMD ["start"]
+
 #
-# Service actions for NGINX and PHP-FPM using supervisord
+# Removing default NGINX sites with custom configuration for PHP-FPM (optimized for PHP-FPM and already non-daemoned)
 #
+RUN rm -rf /etc/nginx/sites-*
+ADD conf/default.conf /etc/nginx/conf.d/default.conf
+ADD conf/nginx.conf /etc/nginx/nginx.conf
+
+#
+# Setting start configuration
+#
+ADD conf/supervisor.conf /etc/supervisor/conf.d/start.conf
 
 #
 # Healtcheck (available for Docker >= 1.12)
