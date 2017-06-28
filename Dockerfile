@@ -60,20 +60,20 @@ ENV MAX_REQUESTS=500
 ENV MAX_UPLOAD_SIZE=100M
 
 #
-# Entrypoint
+# Service actions plus entrypoint for NGINX and PHP-FPM using supervisord
 #
-ADD ./scripts/entrypoint.sh /entrypoint.sh
-RUN chmod 700 /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ADD ./scripts /usr/sbin
+
+RUN cd /usr/sbin && chmod 700 \
+    healthcheck \
+    entrypoint \
+    restart \
+    stop \
+    start
 
 #
 # Service actions for NGINX and PHP-FPM using supervisord
 #
-ADD ./scripts/start.sh /usr/sbin/start
-ADD ./scripts/restart.sh /usr/sbin/restart
-ADD ./scripts/stop.sh /usr/sbin/stop
-RUN chmod 700 /usr/sbin/restart /usr/sbin/stop /usr/sbin/start
-CMD ["start"]
 
 #
 # Healtcheck (available for Docker >= 1.12)
