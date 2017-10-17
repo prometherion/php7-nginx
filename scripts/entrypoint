@@ -24,7 +24,7 @@ sed -i -e 's#listen\s*=\s*127.0.0.1:9000#listen = '$LISTEN'#g' \
 # Overriding max upload size for php.ini
 #
 echo "upload_max_filesize = $MAX_UPLOAD_SIZE
-post_max_size = $MAX_UPLOAD_SIZE" > ${PHP_INI_DIR}/php.ini
+post_max_size = $MAX_UPLOAD_SIZE" >> ${PHP_INI_DIR}/php.ini
 
 #
 # dotEnv environment file

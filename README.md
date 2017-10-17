@@ -1,9 +1,9 @@
 docker-php7-nginx
 ---
 
-Base image optimised for PHP 7.1 and NGINX, wrapped as Supervisor programs in order to provide a 12 factors app
-environment. It doesn't bind SSL port (`443`): load-balancer is responsible for that.
-
+Base image optimised for PHP 7.1 and NGINX, wrapped as Supervisor programs in order to provide a 12 factor app
+environment. It doesn't bind SSL port (`443`): load-balancer is responsible for that. Port 8080 in order to don't run as
+root (<= 1024 ports are privileged).
 
 
 Commands
@@ -15,10 +15,11 @@ configured in `/etc/supervisor/conf.d/start.conf`.
 Programs output like error and access log is set redirected to `STDOUT` in order to enable AWS Cloud Watch tailing.
 
 ### `/usr/sbin/restart` aka restart
-Restart **ALL** programs: useful if you would like to edit nginx/php-fpm configurations.
+Restart **ALL** programs: useful if you would like to edit nginx/php-fpm configurations at runtime.
 
 ### `/usr/sbin/stop` aka stop
-Graceful shutdown of programs.
+Graceful shutdown of programs: this command stop all workers sending container to `unhealthy` status. In order to achieve
+shutdown you should use `docker kill` command or run image as `root` (highly discouraged).
 
 
 
