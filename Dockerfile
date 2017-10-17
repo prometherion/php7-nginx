@@ -51,7 +51,7 @@ ENV MAX_SPARE_SERVERS=50
 ENV MAX_REQUESTS=500
 ENV MAX_UPLOAD_SIZE=100M
 
-ENTRYPOINT ["entrypoint"]
+#ENTRYPOINT ["entrypoint"]
 
 CMD ["start"]
 
@@ -76,3 +76,4 @@ HEALTHCHECK --interval=5s CMD healthcheck
 # Using non-root user in order to enhance security
 #
 USER www-data
+
