@@ -2,47 +2,43 @@ FROM php:7.1.1-fpm
 
 MAINTAINER prometherion <dario.tranchitella@starteed.com>
 
-EXPOSE 80
+EXPOSE 8080
 
 WORKDIR /var/www
+
+#
+# Service actions plus entrypoint for NGINX and PHP-FPM using supervisord
+#
+ADD ./scripts /usr/sbin
 
 #
 # Installing Composer
 #
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
 	php composer-setup.php --install-dir=/usr/bin --filename=composer && \
-	php -r "unlink('composer-setup.php');"
-
-#
-# Updating repositories
-#
-RUN apt-get update
-
-#
-# Installing NGINX  plus utilities for Composer speed up and remote repositories clonation
-#
-RUN apt-get install -y \
-    nginx \
-    supervisor \
-    git \
-    zip \
-    unzip \
-    zlib1g-dev
-
-#
-# Installing PHP Zip extension
-#
-RUN docker-php-ext-install zip
-
-#
-# Cleaning up apt cache
-#
-RUN rm -rf /var/lib/apt/lists/*
-
-#
-# Defining base environment file
-#
-ENV ENV_FILE=.env
+	php -r "unlink('composer-setup.php');" \
+    && apt-get update && apt-get install -y \
+	nginx \
+	supervisor \
+	git \
+	zip \
+	unzip \
+	zlib1g-dev \
+    && rm -rf /etc/nginx/sites-* \
+    && docker-php-ext-install zip \
+    && chown -R www-data /var/log/supervisor && chmod 775 -R /var/log/supervisor \
+    && chown -R www-data /etc/nginx && chmod 775 -R /etc/nginx \
+    && chown -R www-data /var/lib/nginx && chmod 775 -R /var/lib/nginx \
+    && chown -R www-data ${PHP_INI_DIR}/../php-fpm.d && chmod 775 -R ${PHP_INI_DIR}/../php-fpm.d \
+    && touch ${PHP_INI_DIR}/php.ini && chown -R www-data ${PHP_INI_DIR}/php.ini && chmod 775 -R ${PHP_INI_DIR}/php.ini \
+    && mkdir /run/prometherion && chown -R www-data /run/prometherion && chmod 775 -R /run/prometherion \
+    && touch /usr/local/var/log/php-fpm.log && chmod 775 /usr/local/var/log/php-fpm.log && chown www-data /usr/local/var/log/php-fpm.log \
+    && cd /usr/sbin && chmod 775 \
+        healthcheck \
+	entrypoint \
+	restart \
+	stop \
+	start
 
 #
 # PHP-FPM environment variables for performance tuning
@@ -55,35 +51,28 @@ ENV MAX_SPARE_SERVERS=50
 ENV MAX_REQUESTS=500
 ENV MAX_UPLOAD_SIZE=100M
 
-#
-# Service actions plus entrypoint for NGINX and PHP-FPM using supervisord
-#
-ADD ./scripts /usr/sbin
-
-RUN cd /usr/sbin && chmod 700 \
-    healthcheck \
-    entrypoint \
-    restart \
-    stop \
-    start
-
 ENTRYPOINT ["entrypoint"]
 
 CMD ["start"]
 
 #
-# Removing default NGINX sites with custom configuration for PHP-FPM (optimized for PHP-FPM and already non-daemoned)
+# Adding custom NGINX custom configuration for PHP-FPM (optimized for PHP-FPM and already non-daemoned)
 #
-RUN rm -rf /etc/nginx/sites-*
 ADD conf/default.conf /etc/nginx/conf.d/default.conf
 ADD conf/nginx.conf /etc/nginx/nginx.conf
 
 #
 # Setting start configuration
 #
-ADD conf/supervisor.conf /etc/supervisor/conf.d/start.conf
+ADD conf/start.conf /etc/supervisor/conf.d/start.conf
+ADD ./conf/supervisord.conf /etc/supervisor/supervisord.conf
 
 #
 # Healtcheck (available for Docker >= 1.12)
 #
 HEALTHCHECK --interval=5s CMD healthcheck
+
+#
+# Using non-root user in order to enhance security
+#
+USER www-data
