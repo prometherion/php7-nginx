@@ -76,4 +76,3 @@ HEALTHCHECK --interval=5s CMD healthcheck
 # Using non-root user in order to enhance security
 #
 USER www-data
-
