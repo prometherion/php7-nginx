@@ -51,7 +51,7 @@ ENV MAX_SPARE_SERVERS=50
 ENV MAX_REQUESTS=500
 ENV MAX_UPLOAD_SIZE=100M
 
-#ENTRYPOINT ["entrypoint"]
+ENTRYPOINT ["entrypoint"]
 
 CMD ["start"]
 
@@ -62,9 +62,8 @@ ADD conf/default.conf /etc/nginx/conf.d/default.conf
 ADD conf/nginx.conf /etc/nginx/nginx.conf
 
 #
-# Setting start configuration
+# Setting Supervisord configuration
 #
-ADD conf/start.conf /etc/supervisor/conf.d/start.conf
 ADD ./conf/supervisord.conf /etc/supervisor/supervisord.conf
 
 #

@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
 
-supervisorctl stop all
-service supervisor stop
+kill -3 $(ps -aux | grep /usr/bin/supervisord | head -n1 | awk '{print $2}')
 exit
