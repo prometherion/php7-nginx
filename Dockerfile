@@ -1,6 +1,6 @@
 FROM php:7.1.1-fpm
 
-MAINTAINER prometherion <dario.tranchitella@starteed.com>
+LABEL maintainer="prometherion <dario@tranchitella.eu>"
 
 EXPOSE 8080
 
