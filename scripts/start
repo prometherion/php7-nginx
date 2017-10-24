@@ -10,11 +10,6 @@ echo " - max requests: ${MAX_REQUESTS}"
 echo " - max upload size: ${MAX_UPLOAD_SIZE}"
 
 #
-# Always chown webroot for better mounting
-#
-chown -Rf www-data:www-data ${PWD}
-
-#
 # Supervisord
 #
 echo "Starting supervisord for NGINX and PHP-FPM..."
