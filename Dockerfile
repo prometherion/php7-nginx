@@ -1,4 +1,4 @@
-FROM php:7.1.1-fpm
+FROM php:7.1.10-fpm
 
 LABEL maintainer="prometherion <dario@tranchitella.eu>"
 
