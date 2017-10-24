@@ -8,18 +8,21 @@ root (<= 1024 ports are privileged).
 
 Commands
 ---
-### `/usr/sbin/start` aka start
-Execute a chown of `WORKDIR` content according to nginx/php-fpm user (default: `www-data`) and start supervisor programs
-configured in `/etc/supervisor/conf.d/start.conf`.
+### `/usr/bin/start` aka start
+Start supervisor default programs (`php-fpm` and `nginx`) configured in `/etc/supervisor/supervisord.conf`. Feel free to
+add your custom programs in folder `/etc/supervisor/conf.d`.
 
-Programs output like error and access log is set redirected to `STDOUT` in order to enable AWS Cloud Watch tailing.
+Programs output like error and access log is set redirected to `STDOUT`, useful in order to use Docker logging capabilities.
 
-### `/usr/sbin/restart` aka restart
-Restart **ALL** programs: useful if you would like to edit nginx/php-fpm configurations at runtime.
+### `/usr/bin/restart` aka restart
+Restart **ALL** programs: useful if you would like to edit `php-fpm` or `nginx` configurations at runtime.
 
-### `/usr/sbin/stop` aka stop
-Graceful shutdown of programs: this command stop all workers sending container to `unhealthy` status. In order to achieve
-shutdown you should use `docker kill` command or run image as `root` (highly discouraged).
+### `/usr/bin/stop` aka stop
+Graceful shutdown of programs: this command stop all workers sending `SIGSTOP` signal, using Supervisord built-in command.
+Feel free to stop on your own (e.g.: `docker exec <CONTAINER_ID> stop`) or using Docker one (e.g.: `docker stop <CONTAINER_ID>`).
+The `entrypoint` will trap both `SIGTERM` and `SIGQUIT` in order to achieve graceful shutdown, useful if you cannot handle
+pre-stop scripts provided by some schedulers.
+Remember that the default amount of seconds before Supervisord will sending `SIGCHLD` is 10.
 
 
 
@@ -33,7 +36,8 @@ Set to `/var/www`: NGINX serves folder `/var/www/public`. If you need to edit ju
 #### dotEnv file `ENV_FILE`
 dotEnv file is not mandatory: in case you want execute hard-provisioning (i.e.: `.env.production`) the file be copied to
 main `.env` (ensure that the file exists or it will be ignored).
-Remember that dotEnv inject all environment variables so you can use docker ones as well.
+dotEnv can inject *all* environment variables due to `clear_env` configuration flag in `php-fpm` pool: it is not recommended
+due to security issues
 
 
 #### PHP-FPM
