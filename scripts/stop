@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
 
+#
+# Sending STOPSIG to supervisord in order to achieve programs graceful shutdown
+#
 kill -3 $(ps -aux | grep /usr/bin/supervisord | head -n1 | awk '{print $2}')
-exit
